@@ -7,7 +7,7 @@ module.exports = {
   },
   port: 11337,
   max: {
-    team: 20,
+    team: 50,
     id: 99
   },
   commands: {

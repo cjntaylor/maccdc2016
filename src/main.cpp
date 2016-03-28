@@ -16,7 +16,7 @@
 
 #define BADGE_TEAM_DEFAULT 1
 #define BADGE_ID_DEFAULT 1
-#define BADGE_TEAM_MAX 20
+#define BADGE_TEAM_MAX 50
 #define BADGE_ID_MAX 99
 
 const char STR_WAIT      [] PROGMEM = "Please wait...";
