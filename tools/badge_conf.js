@@ -71,6 +71,12 @@ function updateName (address, name) {
   return sendPayload(payload, address);
 }
 
+function sendEcho (address) {
+  console.log('Sending ' + address + ' echo command');
+  var payload = new Buffer([config.commands.echo]);
+  return sendPayload(payload, address);
+}
+
 var cmd = parseInt(process.argv[2]);
 switch(cmd) {
   case 1:
@@ -102,6 +108,10 @@ switch(cmd) {
   case 4:
     if(process.argv.length < 5) exitError();
     updateName(process.argv[3], process.argv[4]);
+    break;
+  case 5:
+    if(process.argv.length < 4) exitError();
+    sendEcho(process.argv[3]);
     break;
   case 6:
     if(process.argv.length < 10) exitError();

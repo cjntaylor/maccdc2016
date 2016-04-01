@@ -39,6 +39,8 @@ const IPAddress NET_GROUP  (239,  13,  37,   1);
 
 typedef unsigned long ulong;
 
+// ---------- BADGE GLOBALS - CAN BE REMOVED ----------
+
 enum sigval {
     SIG_LOW  = -85,
     SIG_MED  = -65,
@@ -71,6 +73,13 @@ typedef struct flash {
 
 typedef void(*handler_f)(uint8_t cmd);
 
+badge_t badge;
+flash_t flash;
+
+// ---------- BADGE GLOBALS - CAN BE REMOVED ----------
+
+// ---------- OTA GLOBALS - DO NOT MODIFY ----------
+
 char moduleName[15];
 
 bool setupMode = false;
@@ -82,8 +91,9 @@ uint  size;
 char  name[256];
 char  temp[2048];
 
-badge_t badge;
-flash_t flash;
+// ---------- OTA GLOBALS - DO NOT MODIFY ----------
+
+// ---------- OTA FUNCTIONS - DO NOT MODIFY ----------
 
 Adafruit_SSD1306 oled(16);
 NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart800KbpsMethod> pixel(8, 0);
@@ -145,6 +155,10 @@ void runSetupMode() {
     oled.print("Setup Mode");
     oled.display();
 }
+
+// ---------- OTA FUNCTIONS - DO NOT MODIFY ----------
+
+// ---------- BADGE FUNCTIONS - CAN BE REMOVED ----------
 
 void updateName(const char* name) {
     // Either copy the name or the default name
@@ -317,7 +331,11 @@ void handleRequests() {
     }
 }
 
+// ---------- BADGE FUNCTIONS - CAN BE REMOVED ----------
+
 void setup() {
+    // ---------- BADGE INITIALIZATION - DO NOT MODIFY ----------
+
     sprintf(moduleName, "esp8266-%06x", ESP.getChipId());
 
     // Initialize the serial port
@@ -343,6 +361,10 @@ void setup() {
     if(!SPIFFS.begin()) {
         enableSetupMode("SPIFFS mount failure");
     }
+
+    // ---------- BADGE INITIALIZATION - DO NOT MODIFY ----------
+
+    // ---------- BADGE CONFIGURATION - CAN BE REMOVED ----------
 
     // Set badge defaults
     badge.team  = BADGE_TEAM_DEFAULT;
@@ -395,6 +417,10 @@ void setup() {
     updateColor(&(badge.color), 0);
     pixel.ClearTo(badge.color);
     pixel.Show();
+
+    // ---------- BADGE CONFIGURATION - CAN BE REMOVED ----------
+
+    // ---------- OTA CONFIGURATION - DO NOT MODIFY ----------
 
     // Try to connect to the wifi defined by the configuration
     if(!setupMode && (file = SPIFFS.open(STR_FILE_WIFI, "r"))) {
@@ -478,6 +504,8 @@ void setup() {
     ArduinoOTA.onStart(otaStart);
     ArduinoOTA.onEnd(otaEnd);
     ArduinoOTA.begin();
+
+    // ---------- OTA CONFIGURATION - DO NOT MODIFY ----------
 }
 
 void loop() {
@@ -487,11 +515,15 @@ void loop() {
     // Setup should only handle OTA requests
     if(setupMode) return yield();
 
+    // ---------- USER CODE GOES HERE ----------
+
     // Process all time-based events without blocking
     runEvents();
 
     // Handle incoming UDP requests
     handleRequests();
+
+    // ---------- USER CODE GOES HERE ----------
 
     // Let the ESP do any other background things
     yield();
