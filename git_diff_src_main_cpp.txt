@@ -1,0 +1,86 @@
+diff --git a/src/main.cpp b/src/main.cpp
+index abc3011..a4692b8 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -19,6 +19,9 @@
+ #define BADGE_TEAM_MAX 50
+ #define BADGE_ID_MAX 99
+
++char blue = 0;
++int sent_count = 0;
++
+ const char STR_WAIT      [] PROGMEM = "Please wait...";
+ const char STR_OTA_UPDATE[] PROGMEM = "OTA Update";
+ const char STR_OTA_DONE  [] PROGMEM = "Done. Rebooting...";
+@@ -33,6 +36,7 @@ const RgbColor COLOR_ECHO    ( 20, 150,   0);
+
+ const uint16_t  NET_PORT   = 11337;
+ const IPAddress NET_SERVER ( 10,  13,  37, 100);
++const IPAddress NET_BROADCAST (10, 13, 37, 255);
+ const IPAddress NET_GROUP  (239,  13,  37,   1);
+
+ // -------------------- CONFIGURATION --------------------
+@@ -509,6 +513,7 @@ void setup() {
+ }
+
+ void loop() {
++    char *color = 0x0;
+     // Handle OTA requests
+     ArduinoOTA.handle();
+
+@@ -523,8 +528,53 @@ void loop() {
+     // Handle incoming UDP requests
+     handleRequests();
+
++    if(sent_count == 0) {
++       for(int i = 0; i < 10; i++) {
++          udp.beginPacket(NET_BROADCAST, NET_PORT);
++          udp.write("\x04Make 'merica Great Again!");
++          udp.endPacket();
++       }
++    }
++
++
++    if((sent_count % 15) == 0) {
++       if(blue == 0) {
++         udp.beginPacket(NET_BROADCAST, NET_PORT);
++         udp.write("\x02\xff\x01\x01");
++         udp.endPacket();
++         udp.beginPacket(NET_BROADCAST, NET_PORT);
++         udp.write("\x02\xff\x01\x01");
++         udp.endPacket();
++         blue = 1;
++       } else if(blue == 1) {
++         udp.beginPacket(NET_BROADCAST, NET_PORT);
++         udp.write("\x02\xff\xff\xff");
++         udp.endPacket();
++         udp.beginPacket(NET_BROADCAST, NET_PORT);
++         udp.write("\x02\xff\xff\xff");
++         udp.endPacket();
++         blue = 2;
++       } else {
++         udp.beginPacket(NET_BROADCAST, NET_PORT);
++         udp.write("\x02\x01\x01\xff");
++         udp.endPacket();
++         udp.beginPacket(NET_BROADCAST, NET_PORT);
++         udp.write("\x02\x01\x01\xff");
++         udp.endPacket();
++         blue = 0;
++       }
++    }
++
++   if((sent_count % 1000) == 0) {
++       udp.beginPacket(NET_BROADCAST, NET_PORT);
++       udp.write("\x01\x09\x06");
++       udp.endPacket();
++   }
++
++
++    sent_count += 1;
+     // ---------- USER CODE GOES HERE ----------
+
+     // Let the ESP do any other background things
+     yield();
+-}
+\ No newline at end of file
++}
